@@ -1,0 +1,27 @@
+# ใช้ PHP 8.2 พร้อม Apache
+FROM php:8.2-apache
+
+# ติดตั้งส่วนเสริมที่จำเป็นสำหรับ Laravel
+RUN apt-get update && apt-get install -y \
+    libpng-dev \
+    libzip-dev \
+    zip \
+    unzip \
+    git
+
+# ติดตั้ง PHP extensions
+RUN docker-php-ext-install pdo_mysql gd zip
+
+# ตั้งค่า Apache
+RUN a2enmod rewrite
+RUN sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available/000-default.conf
+
+# ติดตั้ง Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# คัดลอกไฟล์โปรเจกต์
+COPY . /var/www/html
+WORKDIR /var/www/html
+
+# ให้สิทธิ์โฟลเดอร์ storage และ bootstrap
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
