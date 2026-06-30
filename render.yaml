@@ -3,8 +3,9 @@ services:
     name: run-tracker
     runtime: php
     plan: free
-    buildCommand: composer install --no-dev && npm install && npm run build
-    startCommand: apachectl start
+    buildCommand: "composer install --no-dev --optimize-autoloader && npm install && npm run build"
+    # แก้ StartCommand ให้รันคำสั่งที่ถูกต้องสำหรับ Laravel บน Render
+    startCommand: "php artisan migrate --force && CADDY_PORT=$PORT caddy run --config Caddyfile"
     envVars:
       - key: APP_ENV
         value: production
@@ -12,3 +13,4 @@ services:
         value: "false"
       - key: APP_KEY
         generateValue: true
+      # อย่าลืมใส่ตัวแปรฐานข้อมูลที่จำเป็นทั้งหมดไว้ตรงนี้ด้วยนะครับ!
